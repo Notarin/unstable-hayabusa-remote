@@ -196,13 +196,16 @@ pub(crate) async fn get_motherboard() -> String {
             .expect("non-utf8 response found from call to system_proflier"),
     };
 
-    output
+    let string = output
         .split("\n")
         .into_iter()
         .filter(|x| x.contains("Model Number:"))
         .map(|y| y.replace("Model Number:", ""))
-        .map(|z| z.trim().clone().to_string())
-        .collect()
+        .map(|z| z.trim().to_string())
+        .collect();
+
+    push_motherboard_value(&string);
+    string
 }
 
 #[cfg(target_os = "windows")]
@@ -395,7 +398,10 @@ pub(crate) async fn get_hostname() -> String {
             String::from_utf8(x.stdout).expect("non-utf8 response found from call to hostname")
         }
     };
-    out.trim().to_owned()
+    let string = out.trim().to_owned();
+
+    push_hostname(&string);
+    string
 }
 
 #[cfg(target_os = "windows")]
