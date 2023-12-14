@@ -1,0 +1,23 @@
+name: Create Release
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Extract version from Cargo.toml
+        id: cargo_version
+        run: echo "::set-output name=VERSION::$(grep '^version' Cargo.toml | sed 's/version = "\(.*\)"/\1/')"
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.cargo_version.outputs.VERSION }}
+          release_name: Release v${{ steps.cargo_version.outputs.VERSION }}
+          draft: false
+          prerelease: false
