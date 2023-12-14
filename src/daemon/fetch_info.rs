@@ -7,6 +7,7 @@ use lazy_static::lazy_static;
 use local_ip_address::local_ip;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 use std::process::{Command, Output};
 use std::sync::{Mutex, MutexGuard};
 use std::time::Duration;
