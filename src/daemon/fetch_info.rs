@@ -385,16 +385,15 @@ pub(crate) async fn get_hostname() -> String {
 
 #[cfg(target_os = "macos")]
 pub(crate) async fn get_hostname() -> String {
-    let output_raw: Result<Output, std::io::Error> = Command::new("hostname")
-        .arg("-f")
-        .output();
+    let output_raw: Result<Output, std::io::Error> = Command::new("hostname").arg("-f").output();
 
     let out = match output_raw {
         Err(_) => {
             return "Unknown".to_string();
         }
-        Ok(x) => String::from_utf8(x.stdout)
-            .expect("non-utf8 response found from call to hostname"),
+        Ok(x) => {
+            String::from_utf8(x.stdout).expect("non-utf8 response found from call to hostname")
+        }
     };
     out.trim().to_owned()
 }
