@@ -32,6 +32,7 @@ lazy_static! {
 async fn main() {
     let start: std::time::Instant = std::time::Instant::now();
     let args: Args = Args::parse();
+    let nothing;
     match args.daemon {
         true => daemon::main::main().await,
         //man, I don't remember why one is async and one isn't, but I'll figure that out another time
