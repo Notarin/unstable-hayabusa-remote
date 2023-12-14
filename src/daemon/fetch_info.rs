@@ -197,7 +197,7 @@ pub(crate) async fn get_motherboard() -> String {
             .expect("non-utf8 response found from call to system_proflier"),
     };
 
-    let string = output
+    let string: String = output
         .split("\n")
         .into_iter()
         .filter(|x| x.contains("Model Number:"))
