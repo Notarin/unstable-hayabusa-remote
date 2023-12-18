@@ -28,15 +28,15 @@ jobs:
         run: cargo build --release --target ${{ matrix.target }}
       - name: Rename binary for non-Windows
         if: matrix.os != 'windows-latest'
-        run: mv target/${{ matrix.target }}/release/hayabusa target/${{ matrix.target }}/release/hayabusa-${{ matrix.os }}
+        run: mv target/${{ matrix.target }}/release/hayabusa target/${{ matrix.target }}/release/hayabusa-${{ matrix.os | replace('-latest', '') }}
       - name: Rename binary for Windows
         if: matrix.os == 'windows-latest'
         run: mv target/${{ matrix.target }}/release/hayabusa.exe target/${{ matrix.target }}/release/hayabusa-windows.exe
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: hayabusa-${{ matrix.os }}
-          path: target/${{ matrix.target }}/release/hayabusa-${{ matrix.os }}
+          name: hayabusa-${{ matrix.os | replace('-latest', '') }}
+          path: target/${{ matrix.target }}/release/hayabusa-${{ matrix.os | replace('-latest', '') }}
 
   create-release:
     needs: build
@@ -72,26 +72,24 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./hayabusa-ubuntu-latest/hayabusa-ubuntu
+          asset_path: ./hayabusa-ubuntu/hayabusa-ubuntu
           asset_name: hayabusa-ubuntu
           asset_content_type: application/octet-stream
-
       - name: Upload MacOS Binary
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./hayabusa-macos-latest/hayabusa-macos
+          asset_path: ./hayabusa-macos/hayabusa-macos
           asset_name: hayabusa-macos
           asset_content_type: application/octet-stream
-
       - name: Upload Windows Binary
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./hayabusa-windows-latest/hayabusa-windows.exe
+          asset_path: ./hayabusa-windows/hayabusa-windows.exe
           asset_name: hayabusa-windows.exe
           asset_content_type: application/octet-stream
