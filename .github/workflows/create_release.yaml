@@ -26,12 +26,15 @@ jobs:
           override: true
       - name: Build
         run: cargo build --release --target ${{ matrix.target }}
-      - name: Rename binary for non-Windows
-        if: matrix.os != 'windows-latest'
-        run: mv target/${{ matrix.target }}/release/hayabusa target/${{ matrix.target }}/release/hayabusa-${{ matrix.os }}
-      - name: Rename binary for Windows
-        if: matrix.os == 'windows-latest'
-        run: mv target/${{ matrix.target }}/release/hayabusa.exe target/${{ matrix.target }}/release/hayabusa-windows.exe
+      - name: Rename binary
+        run: |
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            mv target/${{ matrix.target }}/release/hayabusa.exe target/${{ matrix.target }}/release/hayabusa-windows.exe
+            echo "Renamed to hayabusa-windows.exe"
+          else
+            mv target/${{ matrix.target }}/release/hayabusa target/${{ matrix.target }}/release/hayabusa-${{ matrix.os }}
+            echo "Renamed to hayabusa-${{ matrix.os }}"
+          fi
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
