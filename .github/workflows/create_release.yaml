@@ -33,11 +33,18 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: mv target/${{ matrix.target }}/release/hayabusa.exe target/${{ matrix.target }}/release/hayabusa-windows.exe
         shell: bash
-      - name: Upload artifact
+      - name: Upload artifact for non-Windows
+        if: matrix.os != 'windows-latest'
         uses: actions/upload-artifact@v2
         with:
           name: hayabusa-${{ matrix.os }}
           path: target/${{ matrix.target }}/release/hayabusa-${{ matrix.os }}
+      - name: Upload artifact for Windows
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v2
+        with:
+          name: hayabusa-windows-latest
+          path: target/${{ matrix.target }}/release/hayabusa-windows.exe
 
   create-release:
     needs: build
