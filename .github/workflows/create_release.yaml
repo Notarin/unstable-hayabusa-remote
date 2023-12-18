@@ -44,8 +44,7 @@ jobs:
           path: target/${{ matrix.target }}/release/hayabusa-${{ matrix.os }}
 
       - name: Extract version from Cargo.toml
-        id: cargo_version
-        run: echo "::set-output name=VERSION::$(grep '^version' Cargo.toml | sed 's/version = "\(.*\)"/\1/')"
+        run: echo "VERSION=$(awk -F'\"' '/^version/ {print $2}' Cargo.toml)" >> $GITHUB_ENV
 
       - name: Create Release
         id: create_release
