@@ -13,5 +13,5 @@ jobs:
         run: rustup update && rustup default stable
       - name: Generate Cargo.lock and check for changes
         run: |
-          cargo generate-lockfile --offline
+          cargo generate-lockfile
           git diff --exit-code Cargo.lock
