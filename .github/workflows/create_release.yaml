@@ -5,14 +5,43 @@ on:
     branches: [ main ]
 
 jobs:
-  create-release:
+  build-and-release:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v2
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Build for ${{ matrix.os }}
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Rename binary for non-Windows
+        if: matrix.os != 'windows-latest'
+        run: mv target/${{ matrix.target }}/release/hayabusa target/${{ matrix.target }}/release/hayabusa-${{ matrix.os }}
+
+      - name: Rename binary for Windows
+        if: matrix.os == 'windows-latest'
+        run: mv target/${{ matrix.target }}/release/hayabusa.exe target/${{ matrix.target }}/release/hayabusa-windows.exe
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: hayabusa-${{ matrix.os }}
+          path: target/${{ matrix.target }}/release/hayabusa-${{ matrix.os }}
+
       - name: Extract version from Cargo.toml
         id: cargo_version
         run: echo "::set-output name=VERSION::$(grep '^version' Cargo.toml | sed 's/version = "\(.*\)"/\1/')"
+
       - name: Create Release
+        id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -21,3 +50,23 @@ jobs:
           release_name: Release v${{ steps.cargo_version.outputs.VERSION }}
           draft: false
           prerelease: false
+
+      - name: Upload hayabusa.service
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./distribution/hayabusa.service
+          asset_name: hayabusa.service
+          asset_content_type: text/plain
+
+      - name: Upload built binaries
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./target/${{ matrix.target }}/release/hayabusa-${{ matrix.os }}
+          asset_name: hayabusa-${{ matrix.os }}
+          asset_content_type: application/octet-stream
